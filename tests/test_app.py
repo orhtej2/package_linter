@@ -416,21 +416,18 @@ class App(TestSuite):
 
         if (self.path / "doc" / "screenshots").exists():
             du_output = subprocess.check_output(
-                ["du", "-sb", self.path / "doc" / "screenshots"], shell=False
+                ["du", "-sk", self.path / "doc" / "screenshots"], shell=False
             )
-            screenshots_size = int(du_output.split()[0])
-            if screenshots_size > 1024 * 1000:
-                yield ReportWarning(
-                    "Please keep the content of doc/screenshots under ~512Kb. Having screenshots "
-                    "bigger than 512kb is probably a waste of resource and will take unecessarily "
-                    "long time to load on the webadmin UI and app catalog."
-                )
-            elif screenshots_size > 512 * 1000:
-                yield ReportInfo(
-                    "Please keep the content of doc/screenshots under ~512Kb. Having screenshots "
-                    "bigger than 512kb is probably a waste of resource and will take unecessarily "
-                    "long time to load on the webadmin UI and app catalog."
-                )
+            screenshots_size_kb = int(du_output.split()[0])
+            size_msg = (
+                "Please keep the content of doc/screenshots under ~512Kb. Having screenshots "
+                "bigger than 512kb is probably a waste of resource and will take unecessarily "
+                "long time to load on the webadmin UI and app catalog."
+            )
+            if screenshots_size_kb > 1024:
+                yield ReportWarning(size_msg)
+            elif screenshots_size_kb > 512:
+                yield ReportInfo(size_msg)
 
             for file in (self.path / "doc" / "screenshots").rglob("*"):
                 filename = file.name
